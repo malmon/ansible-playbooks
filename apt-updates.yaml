@@ -1,4 +1,4 @@
-- hosts: all
+- hosts: ubuntu
 
   tasks:
     - name: Upgrade Hosts (Ubuntu)
@@ -6,4 +6,3 @@
         update_cache: yes
         upgrade: yes
       become: yes
-      when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'

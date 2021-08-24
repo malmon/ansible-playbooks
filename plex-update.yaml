@@ -1,0 +1,40 @@
+- hosts: plex
+
+  tasks:
+    - name: Install Required Packages
+      pip:
+        name:
+          - lxml
+    - name: Get Status Of Update
+      uri:
+        url: "http://192.168.0.15:32400/updater/status?X-Plex-Token={{ x_plex_token }}"
+        return_content: yes
+      register: xmldata
+   
+    - name: Get Update Data Version
+      xml:
+        xmlstring: "{{ xmldata.content }}"
+        xpath: /MediaContainer
+        content: attribute
+      register: release_update
+
+    - fail:
+        msg: "The System Is Up To date"
+      when: release_update.matches[-1].MediaContainer.size == "0"
+  
+    - name: Get Status Of Update
+      uri:
+        url: "http://192.168.0.15:32400/status/sessions?X-Plex-Token={{ x_plex_token }}"
+        return_content: yes
+      register: xmldata
+    
+    - name: Get Number Of Sessions
+      xml:
+        xmlstring: "{{ xmldata.content }}"
+        xpath: /MediaContainer
+        content: attribute
+      register: session_count
+    
+    - fail:
+        msg: "Someone is watching something will no update"
+      when: session_count.matches[-1].MediaContainer.size != "0"

@@ -1,16 +1,21 @@
 - hosts: plex
 
+  vars:
+    compose_partent: /mnt/nfs/docker/compose/
+    compose_source: "plex"
+
   tasks:
     - name: Install Required Packages
       pip:
         name:
           - lxml
+
     - name: Get Status Of Update
       uri:
         url: "http://192.168.0.15:32400/updater/status?X-Plex-Token={{ x_plex_token }}"
         return_content: yes
       register: xmldata
-   
+
     - name: Get Update Data Version
       xml:
         xmlstring: "{{ xmldata.content }}"
@@ -21,7 +26,7 @@
     - debug:
         msg: "The System Is Up To date"
       when: release_update.matches[-1].MediaContainer.size == "0"
-    
+   
     - meta: end_play
       when: release_update.matches[-1].MediaContainer.size == "0"
   
@@ -44,3 +49,19 @@
     
     - meta: end_play
       when: session_count.matches[-1].MediaContainer.size != "0"
+
+    - name: Tear down existing plex
+      docker_compose:
+        project_src: "{{ compose_source }}"
+        state: absent
+
+    - name: Pull New Image and Start Plex
+      docker_compose:
+        project_src: "{{ compose_partent }}{{ compose_source  }}"
+        pull: yes
+
+    - name: Prune Images
+      docker_prune:
+        images: yes
+        images_filters:
+          dangling: false

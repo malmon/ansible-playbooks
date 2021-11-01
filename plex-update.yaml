@@ -52,7 +52,7 @@
 
     - name: Tear down existing plex
       docker_compose:
-        project_src: "{{ compose_source }}"
+        project_src: "{{ compose_partent }}{{ compose_source }}"
         state: absent
 
     - name: Pull New Image and Start Plex

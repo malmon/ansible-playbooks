@@ -1,4 +1,4 @@
-- hosts: docker
+- hosts: docker-general
 
   tasks:
 

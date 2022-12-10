@@ -5,7 +5,7 @@
   - name: Install Required Packages
     pip:
       name:
-        - boto
+        - boto3
 
   - name: Get Current Pulbic IP Address
     ipify_facts:
